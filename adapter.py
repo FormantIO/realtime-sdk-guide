@@ -21,7 +21,7 @@ class Adapter:
             for percentage in psutil.cpu_percent(percpu=True, interval=0.07):
                 c.append(percentage)
             self.fclient.send_on_custom_data_channel(
-                "vitals", json.dumps(c).encode("utf-8")
+                "cores", json.dumps(c).encode("utf-8")
             )
 
     def custom_data_channel_message_callback(self, message):
@@ -29,8 +29,8 @@ class Adapter:
             coordinates = json.loads(message.payload)
             print(coordinates)
 
-            # do some computationally intensive calculation
-            # so the CPU vitals show feedback
+            # do some CPU intensive loop
+            # so the CPU cores visualization shows feedback
             i = 0
             while i < 50000000:
                 i += 1

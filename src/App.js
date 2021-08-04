@@ -13,14 +13,14 @@ class App extends Component {
     super()
     this.deviceId = new URLSearchParams(window.location.search).get("device");
 
-    this.vitals = []
-    this.vitalsChannel = undefined;
-    this.vitalsCanvas = undefined;
-
     this.path = [];
     this.isPathMouseDown = false;
     this.pathChannel = undefined;
     this.pathCanvas = undefined;
+
+    this.cores = []
+    this.coresChannel = undefined;
+    this.coresCanvas = undefined;
 
     this.textToSpeechChannel = undefined;
     this.textToSpeechValue = undefined;
@@ -64,23 +64,10 @@ class App extends Component {
         console.log("Waiting for connection ...")
     }
 
-    // Create a custom data channel to the device peer with a name, settings, and handlers.
+    // Create a custom data channel to the device peer with a
+    // channel name, settings, and handlers.
     // The device-side application can send and receive messages
     // on this channel using the agent API.
-    rtcClient.createCustomDataChannel(
-      devicePeerId, // device peer to open the channel with
-      "vitals", // channel name
-      { ordered: false, maxRetransmits: 0}, // channel settings
-      true, // use binary data format
-      (_, channel) => {
-        this.vitalsChannel = channel;
-        channel.onopen = () => {
-          console.log("Vitals channel opened.")
-        }
-        channel.onmessage = (event) => this.onVitalsChannelEvent(event);
-      },
-    )
-
     rtcClient.createCustomDataChannel(
       devicePeerId, // device peer to open the channel with
       "path", // channel name
@@ -91,6 +78,21 @@ class App extends Component {
         channel.onopen = () => {
           console.log("Path channel opened.")
         }
+      },
+    )
+
+    rtcClient.createCustomDataChannel(
+      devicePeerId, // device peer to open the channel with
+      "cores", // channel name
+      { ordered: false, maxRetransmits: 0}, // channel settings
+      true, // use binary data format
+      (_, channel) => {
+        this.coresChannel = channel;
+        channel.onopen = () => {
+          console.log("Cores channel opened.")
+        }
+        // Set the onmessage handler to handle data sent from the device.
+        channel.onmessage = (event) => this.onCoresChannelEvent(event);
       },
     )
 
@@ -107,43 +109,41 @@ class App extends Component {
       },
     )
 
-    this.resetCanvas()
+    this.resetPathCanvas()
   }
 
-  resetCanvas() {
+  // Path Control methods
+
+  resetPathCanvas() {
     const canvas = this.pathCanvas;
     if (canvas) {
       const ctx = this.pathCanvas.getContext("2d");
-      ctx.fillStyle = "#1C1E2D"
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
-  }
-
-  onVitalsChannelEvent(event) {
-    try {
-      const encoded = decoder.decode(event.data);
-      this.vitals = JSON.parse(encoded);
-      const { vitalsCanvas } = this;
-      if (vitalsCanvas) {
-        const ctx = vitalsCanvas.getContext("2d");
-        ctx.save();
-        ctx.globalAlpha = 0.5;
-
-        ctx.fillStyle = "#282C34";
-        ctx.fillRect(0, 0, vitalsCanvas.width, vitalsCanvas.height);
-
-        ctx.fillStyle = "#1FB7E0";
-        const width = vitalsCanvas.width / this.vitals.length;
-        for (let i = 0; i < this.vitals.length; i++) {
-          const height = (this.vitals[i] / 100.0) * vitalsCanvas.height;
-          ctx.fillRect(i*width, vitalsCanvas.height - height, width, vitalsCanvas.height);
-          
+      ctx.fillStyle = darkColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = backgroundColor;
+      const blockSize = 16;
+      for (let i = 0; i < (canvas.width / 10); i++) {
+        ctx.beginPath()
+        if (i % 8 === 0) {
+          ctx.lineWidth = 0.64;
+        } else {
+          ctx.lineWidth = 0.32;
         }
-
-        ctx.restore()
+        ctx.moveTo(i * blockSize, 0);
+        ctx.lineTo(i * blockSize, canvas.height);
+        ctx.stroke();
       }
-    } catch {
-      console.log("Error decoding data channel event")
+      for (let j = 0; j < (canvas.height / 10); j++) {
+        ctx.beginPath();
+        if (j % 6 === 0) {
+          ctx.lineWidth = 0.64;
+        } else {
+          ctx.lineWidth = 0.32;
+        }
+        ctx.moveTo(0, j * blockSize);
+        ctx.lineTo(canvas.width, j * blockSize);
+        ctx.stroke();
+      }
     }
   }
 
@@ -156,8 +156,8 @@ class App extends Component {
       const ctx = this.pathCanvas.getContext("2d");
       ctx.save()
       ctx.beginPath();
-      ctx.strokeStyle = "#1FB7E0";
-      ctx.fillStyle = "#1FB7E0";
+      ctx.strokeStyle = lightColor;
+      ctx.fillStyle = lightColor;
       ctx.arc(x, y, 5, 0, 2 * Math.PI);
       ctx.fill()
       ctx.stroke()
@@ -174,7 +174,7 @@ class App extends Component {
       const ctx = pathCanvas.getContext("2d");
       ctx.save()
       ctx.beginPath()
-      ctx.fillStyle = "#1FB7E0";
+      ctx.fillStyle = lightColor;
       ctx.arc(x, y, 1.0, 0, 2 * Math.PI);
       ctx.fill()
 
@@ -203,9 +203,41 @@ class App extends Component {
       }
       this.pathChannel.send(encoder.encode(JSON.stringify(this.path)))
       this.path = []
-      this.resetCanvas()
+      this.resetPathCanvas()
     }
   }
+
+  // Core Visualization methods
+
+  onCoresChannelEvent(event) {
+    try {
+      const encoded = decoder.decode(event.data);
+      this.cores = JSON.parse(encoded);
+      const { coresCanvas } = this;
+      if (coresCanvas) {
+        const ctx = coresCanvas.getContext("2d");
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+
+        ctx.fillStyle = backgroundColor;
+        ctx.fillRect(0, 0, coresCanvas.width, coresCanvas.height);
+
+        ctx.fillStyle = lightColor;
+        const width = coresCanvas.width / this.cores.length;
+        for (let i = 0; i < this.cores.length; i++) {
+          const height = (this.cores[i] / 100.0) * coresCanvas.height;
+          ctx.fillRect(i*width, coresCanvas.height - height, width, coresCanvas.height);
+          
+        }
+
+        ctx.restore()
+      }
+    } catch {
+      console.log("Error decoding data channel event")
+    }
+  }
+
+  // Text-to-speech methods
 
   onTextToSpeechKeypress(event) {
     const { textToSpeechChannel, textToSpeechInput } = this;
@@ -221,7 +253,7 @@ class App extends Component {
     };
 
     this.setVitalsCanvasRef = element => {
-      this.vitalsCanvas = element;
+      this.coresCanvas = element;
     };
 
     this.setTextToSpeechInputRef = element => {
@@ -276,5 +308,9 @@ function getCoordinates(event) {
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+const darkColor = "#1C1E2D";
+const backgroundColor = "#282C34";
+const lightColor = "#1FB7E0";
 
 export default App;
