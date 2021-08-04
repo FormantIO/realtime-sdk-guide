@@ -44,7 +44,11 @@ class Adapter:
 
             print("done processing")
         elif message.channel_name == "textToSpeech":
-            import pyttsx3  # optional, requires additional dependencies
+            try:
+                import pyttsx3  # optional, requires additional dependencies
+            except ImportError:
+                print("Text-to-speech not installed.")
+                return
 
             value = message.payload.decode("utf-8")
             print('"' + value + '"')

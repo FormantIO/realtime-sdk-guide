@@ -1,17 +1,21 @@
 ### Running the custom web view
 
-`yarn start` runs the app in the development mode.
+In the repo's root,
 
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+`yarn install` to install depdendencies.
+
+`yarn start` to run the app in development mode.
+
+Configure a custom web view in Formant with the url `http://localhost:3000/?auth={auth}&device={device_id}` to use this app inside Formant.
 
 The page will reload if you make edits.
 
-### Running the python adapter
+### Running the complementary python adapter
 
 `python3 -m pip install -r requirements.txt`
 
 `python3 adapter.py`
 
-### Text-to-speech dependency
+### Optional text-to-speech dependency
 
 `sudo apt install espeak`
