@@ -20,12 +20,32 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: calc(10px + 2vmin);
+    font-size: calc(2vmin);
     color: white;
 }
 
 .App-link {
     color: #61dafb;
+}
+
+.App-element {
+    margin: 20px;
+}
+
+.App-input {
+    color: white;
+    font-size: calc(2vmin);
+
+    background-color: #383c44;
+    border: 1px solid #383c44;
+    width: 35%;
+    height: 40px;
+}
+
+.App-input:focus {
+    outline: 0;
+    box-shadow: none;
+    border: 1px solid "#1FB7E0";
 }
 
 @keyframes App-logo-spin {
