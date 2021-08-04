@@ -5,13 +5,6 @@ import threading
 
 from formant.sdk.agent.v1 import Client as FormantAgentClient
 
-"""
-live stream video
-show realtime system vitals
-send a drawn path
-bonus: tts
-"""
-
 
 class Adapter:
     def __init__(self):
