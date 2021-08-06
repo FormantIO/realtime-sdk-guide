@@ -117,33 +117,7 @@ class App extends Component {
   resetPathCanvas() {
     const canvas = this.pathCanvas;
     if (canvas) {
-      const ctx = this.pathCanvas.getContext("2d");
-      ctx.fillStyle = darkColor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = backgroundColor;
-      const blockSize = 16;
-      for (let i = 0; i < (canvas.width / 10); i++) {
-        ctx.beginPath()
-        if (i % 8 === 0) {
-          ctx.lineWidth = 0.64;
-        } else {
-          ctx.lineWidth = 0.32;
-        }
-        ctx.moveTo(i * blockSize, 0);
-        ctx.lineTo(i * blockSize, canvas.height);
-        ctx.stroke();
-      }
-      for (let j = 0; j < (canvas.height / 10); j++) {
-        ctx.beginPath();
-        if (j % 6 === 0) {
-          ctx.lineWidth = 0.64;
-        } else {
-          ctx.lineWidth = 0.32;
-        }
-        ctx.moveTo(0, j * blockSize);
-        ctx.lineTo(canvas.width, j * blockSize);
-        ctx.stroke();
-      }
+      drawPathControlBackground(canvas);
     }
   }
 
@@ -153,15 +127,7 @@ class App extends Component {
     if (pathCanvas) {
       const { x, y } = getCoordinates(event)
       this.path = [{x, y}]
-      const ctx = this.pathCanvas.getContext("2d");
-      ctx.save()
-      ctx.beginPath();
-      ctx.strokeStyle = lightColor;
-      ctx.fillStyle = lightColor;
-      ctx.arc(x, y, 5, 0, 2 * Math.PI);
-      ctx.fill()
-      ctx.stroke()
-      ctx.restore()
+      drawPathStart(canvas);
     }
   }
 
@@ -170,26 +136,7 @@ class App extends Component {
     if (pathCanvas && isPathMouseDown) {
       const { x, y } = getCoordinates(event)
       this.path.push({ x, y })
-
-      const ctx = pathCanvas.getContext("2d");
-      ctx.save()
-      ctx.beginPath()
-      ctx.fillStyle = lightColor;
-      ctx.arc(x, y, 1.0, 0, 2 * Math.PI);
-      ctx.fill()
-
-      if (this.path.length > 2) {
-        const first = this.path[this.path.length - 3]
-        const second = this.path[this.path.length - 2]
-        const third = this.path[this.path.length - 1]
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
-        ctx.beginPath();
-        ctx.moveTo(first.x, first.y)
-        ctx.quadraticCurveTo(second.x, second.y, third.x, third.y)
-        ctx.stroke()
-      }
-
-      ctx.restore()
+      drawPath(canvas);
     }
   }
 
@@ -215,22 +162,7 @@ class App extends Component {
       this.cores = JSON.parse(encoded);
       const { coresCanvas } = this;
       if (coresCanvas) {
-        const ctx = coresCanvas.getContext("2d");
-        ctx.save();
-        ctx.globalAlpha = 0.5;
-
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, 0, coresCanvas.width, coresCanvas.height);
-
-        ctx.fillStyle = lightColor;
-        const width = coresCanvas.width / this.cores.length;
-        for (let i = 0; i < this.cores.length; i++) {
-          const height = (this.cores[i] / 100.0) * coresCanvas.height;
-          ctx.fillRect(i*width, coresCanvas.height - height, width, coresCanvas.height);
-          
-        }
-
-        ctx.restore()
+        drawCoresVisualization(coresCanvas)
       }
     } catch {
       console.log("Error decoding data channel event")
@@ -305,12 +237,92 @@ function getCoordinates(event) {
   return { x, y }
 }
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function drawPathControlBackground(canvas) {
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = darkColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = backgroundColor;
+  const blockSize = 16;
+  for (let i = 0; i < (canvas.width / 10); i++) {
+    ctx.beginPath()
+    if (i % 8 === 0) {
+      ctx.lineWidth = 0.64;
+    } else {
+      ctx.lineWidth = 0.32;
+    }
+    ctx.moveTo(i * blockSize, 0);
+    ctx.lineTo(i * blockSize, canvas.height);
+    ctx.stroke();
+  }
+  for (let j = 0; j < (canvas.height / 10); j++) {
+    ctx.beginPath();
+    if (j % 6 === 0) {
+      ctx.lineWidth = 0.64;
+    } else {
+      ctx.lineWidth = 0.32;
+    }
+    ctx.moveTo(0, j * blockSize);
+    ctx.lineTo(canvas.width, j * blockSize);
+    ctx.stroke();
+  }
+}
+
+function drawPath(canvas) {
+  const ctx = canvas.getContext("2d");
+  ctx.save()
+  ctx.beginPath()
+  ctx.fillStyle = lightColor;
+  ctx.arc(x, y, 1.0, 0, 2 * Math.PI);
+  ctx.fill()
+
+  if (this.path.length > 2) {
+    const first = this.path[this.path.length - 3]
+    const second = this.path[this.path.length - 2]
+    const third = this.path[this.path.length - 1]
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+    ctx.beginPath();
+    ctx.moveTo(first.x, first.y)
+    ctx.quadraticCurveTo(second.x, second.y, third.x, third.y)
+    ctx.stroke()
+  }
+
+  ctx.restore()
+}
+
+function drawPathStart(canvas) {
+  const ctx = canvas.getContext("2d");
+  ctx.save()
+  ctx.beginPath();
+  ctx.strokeStyle = lightColor;
+  ctx.fillStyle = lightColor;
+  ctx.arc(x, y, 5, 0, 2 * Math.PI);
+  ctx.fill()
+  ctx.stroke()
+  ctx.restore()
+}
+
+function drawCoresVisualization(canvas) {
+  const ctx = canvas.getContext("2d");
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = backgroundColor;
+  ctx.fillRect(0, 0, coresCanvas.width, coresCanvas.height);
+  ctx.fillStyle = lightColor;
+  const width = coresCanvas.width / this.cores.length;
+  for (let i = 0; i < this.cores.length; i++) {
+    const height = (this.cores[i] / 100.0) * coresCanvas.height;
+    ctx.fillRect(i*width, coresCanvas.height - height, width, coresCanvas.height);
+    
+  }
+  ctx.restore()
 }
 
 const darkColor = "#1C1E2D";
 const backgroundColor = "#282C34";
 const lightColor = "#1FB7E0";
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export default App;
