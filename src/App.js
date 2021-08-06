@@ -131,7 +131,7 @@ class App extends Component {
         if (pathCanvas) {
             const { x, y } = getCoordinates(event);
             this.path = [{ x, y }];
-            drawPathStart(canvas);
+            drawPathStart(pathCanvas, x, y);
         }
     }
 
@@ -140,7 +140,7 @@ class App extends Component {
         if (pathCanvas && isPathMouseDown) {
             const { x, y } = getCoordinates(event);
             this.path.push({ x, y });
-            drawPath(canvas);
+            drawPath(pathCanvas, x, y, this.path);
         }
     }
 
@@ -267,7 +267,7 @@ function drawPathControlBackground(canvas) {
     }
 }
 
-function drawPath(canvas) {
+function drawPath(canvas, x, y, path) {
     const ctx = canvas.getContext("2d");
     ctx.save();
     ctx.beginPath();
@@ -289,7 +289,7 @@ function drawPath(canvas) {
     ctx.restore();
 }
 
-function drawPathStart(canvas) {
+function drawPathStart(canvas, x, y) {
     const ctx = canvas.getContext("2d");
     ctx.save();
     ctx.beginPath();
@@ -306,17 +306,12 @@ function drawCoresVisualization(canvas) {
     ctx.save();
     ctx.globalAlpha = 0.5;
     ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, coresCanvas.width, coresCanvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = lightColor;
-    const width = coresCanvas.width / this.cores.length;
+    const width = canvas.width / this.cores.length;
     for (let i = 0; i < this.cores.length; i++) {
-        const height = (this.cores[i] / 100.0) * coresCanvas.height;
-        ctx.fillRect(
-            i * width,
-            coresCanvas.height - height,
-            width,
-            coresCanvas.height
-        );
+        const height = (this.cores[i] / 100.0) * canvas.height;
+        ctx.fillRect(i * width, canvas.height - height, width, canvas.height);
     }
     ctx.restore();
 }
