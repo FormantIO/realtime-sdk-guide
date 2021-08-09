@@ -17,9 +17,7 @@ class Adapter:
 
     def send_cpu_core_util_data(self):
         while True:
-            c = []
-            for percentage in psutil.cpu_percent(percpu=True, interval=0.07):
-                c.append(percentage)
+            c = [p for p in psutil.cpu_percent(percpu=True, interval=0.07)]
             self.fclient.send_on_custom_data_channel(
                 "cores", json.dumps(c).encode("utf-8")
             )
