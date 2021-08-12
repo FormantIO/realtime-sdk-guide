@@ -1177,10 +1177,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@formant/realtime-sdk@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@formant/realtime-sdk/-/realtime-sdk-0.0.1.tgz#299d4639b4eb901c27d194ca6f11922dd474e05d"
-  integrity sha512-EIUpSKDWu320n5Xi6KB1lBgpObtg81SMFimGZhzVaIZ2IqPVaXDYL/0WUf8+m/BnsbWhgtm4+MR/IjHSYJ+u/A==
+"@formant/realtime-sdk@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@formant/realtime-sdk/-/realtime-sdk-0.0.2.tgz#b9c81cc0816097048015d17ce8acf6194deef011"
+  integrity sha512-pQzEen4Tu7IgTMNsx1BUug6uqJO1w5yJBRbnRVvYwKyuRfp2gjCwMYbGfHj1f7p1+wc404JLaepzkrGKivPEGw==
   dependencies:
     google-protobuf "^3.17.3"
     grpc-web "^1.2.1"

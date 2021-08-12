@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import "./App.css";
 import { RtcClient, SignalingPromiseClient } from "@formant/realtime-sdk";
 
-const formantApiUrl = "https://api-dev.formant.io";
+const formantApiUrl = "https://api.formant.io";
 const decoder = new TextDecoder("utf-8");
 const encoder = new TextEncoder("utf-8");
 
@@ -38,11 +38,10 @@ class App extends Component {
                 this.receiveRtcMessage(peerId, message),
         });
 
-        // while (!rtcClient.isReady()) {
-        //   console.log("Waiting for RTC client to initialize...")
-        //   await delay(100);
-        // }
-        await delay(500); // TODO: update to latest realtime-sdk version and uncomment
+        while (!rtcClient.isReady()) {
+            console.log("Waiting for RTC client to initialize...");
+            await delay(200);
+        }
 
         // Each online device and user has a peer in the system
         const peers = await rtcClient.getPeers();
