@@ -34,8 +34,8 @@ class App extends Component {
             signalingClient: new SignalingPromiseClient(formantApiUrl),
             getToken: () =>
                 new URLSearchParams(window.location.search).get("auth"),
-            receive: (peerId, message) =>
-                this.receiveRtcMessage(peerId, message),
+            // Streams configured in Formant, such as video, can be received here
+            receive: (peerId, message) => {},
         });
 
         while (!rtcClient.isReady()) {
